@@ -7,35 +7,32 @@ app = Flask(__name__)
 TELEGRAM_API_URL = "7843422944:AAGIl3EyW9__kjQvYbPhLEfVn19j7rfZd1c"
 CHAT_ID = "<1616846358>"
 
-@app.route('/api/signal', methods=['POST'])
-def handle_signal():
-    try:
-        # Get the data from TradingView
-        data = request.get_json()
+# Инициализация Telegram-бота
+bot = telebot.TeleBot(API_TOKEN)
 
-        symbol = data['symbol']
-        timeframe = data['timeframe']
-        signal = data['signal']
-        price = data['price']
+# Главная страница (корневой путь)
+@app.route('/')
+def index():
+    return "Server is running!"
 
-        # Prepare the message
-        message = f"Signal: {signal}\nSymbol: {symbol}\nTimeframe: {timeframe}\nPrice: {price}"
+# Путь для обработки сигналов
+@app.route('/signal', methods=['POST'])
+def signal():
+    data = request.json
+    print(f"Received signal: {data}")
+    
+    # Отправка сигнала в Telegram
+    signal = data.get('signal')
+    symbol = data.get('symbol')
+    price = data.get('price')
+    timeframe = data.get('timeframe')
+    
+    message = f"Signal: {signal}\nSymbol: {symbol}\nPrice: {price}\nTimeframe: {timeframe}"
+    bot.send_message(CHAT_ID, message)
+    
+    return jsonify({"status": "success", "message": "Signal received and sent to Telegram!"})
 
-        # Send message to Telegram
-        send_to_telegram(message)
+# Запуск сервера
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
 
-        return jsonify({"status": "success"}), 200
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-def send_to_telegram(message):
-    payload = {
-        "chat_id": CHAT_ID,
-        "text": message
-    }
-    response = requests.post(TELEGRAM_API_URL, data=payload)
-    if response.status_code != 200:
-        print(f"Failed to send message to Telegram. Error: {response.text}")
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
