@@ -5,7 +5,7 @@ import telebot
 app = Flask(__name__)
 
 # Telegram Bot API details
-TELEGRAM_API_URL = "7843422944:AAGIl3EyW9__kjQvYbPhLEfVn19j7rfZd1c"
+API_TOKEN = "7843422944:AAGIl3EyW9__kjQvYbPhLEfVn19j7rfZd1c"
 CHAT_ID = "<1616846358>"
 
 # Инициализация Telegram-бота
